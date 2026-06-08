@@ -10,10 +10,22 @@ export function fetchLogin(params: Api.Auth.LoginParams) {
     url: '/login',
     params: {
       username: params.userName,
-      password: params.password
+      password: params.password,
+      code: params.code,
+      uuid: params.uuid
     }
     // showSuccessMessage: true // 显示成功消息
     // showErrorMessage: false // 不显示错误消息
+  })
+}
+
+/**
+ * 获取验证码
+ * @returns 验证码图片、验证码开关和uuid
+ */
+export function fetchCaptchaImage() {
+  return request.get<Api.Auth.CaptchaImageResponse>({
+    url: '/captchaImage'
   })
 }
 
@@ -43,7 +55,9 @@ export function fetchLogout() {
   })
 }
 
-function normalizeUserInfo(data: Api.Auth.UserInfo | Api.Auth.RuoYiUserInfoResponse): Api.Auth.UserInfo {
+function normalizeUserInfo(
+  data: Api.Auth.UserInfo | Api.Auth.RuoYiUserInfoResponse
+): Api.Auth.UserInfo {
   const ruoyiUser = 'user' in data ? data.user : undefined
   const roles = data.roles || []
   const permissions = 'permissions' in data && data.permissions ? data.permissions : []
@@ -54,7 +68,8 @@ function normalizeUserInfo(data: Api.Auth.UserInfo | Api.Auth.RuoYiUserInfoRespo
     roles,
     permissions,
     userId: Number(('userId' in data && data.userId) || ruoyiUser?.userId || 0),
-    userName: ('userName' in data && data.userName) || ruoyiUser?.userName || ruoyiUser?.nickName || '',
+    userName:
+      ('userName' in data && data.userName) || ruoyiUser?.userName || ruoyiUser?.nickName || '',
     nickName: ('nickName' in data && data.nickName) || ruoyiUser?.nickName,
     email: ('email' in data && data.email) || ruoyiUser?.email || '',
     avatar: ('avatar' in data && data.avatar) || ruoyiUser?.avatar

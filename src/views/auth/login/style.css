@@ -22,6 +22,18 @@
   .custom-height {
     @apply !h-[40px];
   }
+
+  .captcha-row {
+    @apply flex w-full gap-3;
+  }
+
+  .captcha-image {
+    @apply h-[40px] w-[120px] shrink-0 overflow-hidden rounded-md border border-solid border-g-200 bg-g-100 p-0 cursor-pointer;
+  }
+
+  .captcha-image img {
+    @apply block h-full w-full object-cover;
+  }
 }
 
 /* 滑入动画 */

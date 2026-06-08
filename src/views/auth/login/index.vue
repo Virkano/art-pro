@@ -35,6 +35,20 @@
                 show-password
               />
             </ElFormItem>
+            <ElFormItem v-if="captchaEnabled" prop="code">
+              <div class="captcha-row">
+                <ElInput
+                  class="custom-height"
+                  :placeholder="$t('login.placeholder.code')"
+                  v-model.trim="formData.code"
+                  maxlength="6"
+                  autocomplete="off"
+                />
+                <button class="captcha-image" type="button" @click="getCode">
+                  <img v-if="codeUrl" :src="codeUrl" :alt="$t('login.placeholder.code')" />
+                </button>
+              </div>
+            </ElFormItem>
 
             <div style="margin-top: 30px">
               <ElButton
@@ -59,7 +73,7 @@
   import { useUserStore } from '@/store/modules/user'
   import { useI18n } from 'vue-i18n'
   import { HttpError } from '@/utils/http/error'
-  import { fetchLogin } from '@/api/auth'
+  import { fetchCaptchaImage, fetchLogin } from '@/api/auth'
   import { ElNotification, type FormInstance, type FormRules } from 'element-plus'
   import { RoutesAlias } from '@/router/routesAlias'
 
@@ -82,15 +96,39 @@
 
   const formData = reactive({
     username: 'admin',
-    password: 'admin123'
+    password: 'admin123',
+    code: '',
+    uuid: ''
   })
+
+  const codeUrl = ref('')
+  const captchaEnabled = ref(true)
 
   const rules = computed<FormRules>(() => ({
     username: [{ required: true, message: t('login.placeholder.username'), trigger: 'blur' }],
-    password: [{ required: true, message: t('login.placeholder.password'), trigger: 'blur' }]
+    password: [{ required: true, message: t('login.placeholder.password'), trigger: 'blur' }],
+    code: captchaEnabled.value
+      ? [{ required: true, message: t('login.placeholder.code'), trigger: 'blur' }]
+      : []
   }))
 
   const loading = ref(false)
+
+  const getCode = async () => {
+    const res = await fetchCaptchaImage()
+    captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
+
+    if (!captchaEnabled.value) return
+
+    codeUrl.value = normalizeCaptchaImage(res.img)
+    formData.uuid = res.uuid || ''
+    formData.code = ''
+  }
+
+  const normalizeCaptchaImage = (img?: string) => {
+    if (!img) return ''
+    return img.startsWith('data:image') ? img : `data:image/gif;base64,${img}`
+  }
 
   // 登录
   const handleSubmit = async () => {
@@ -108,7 +146,9 @@
 
       const { token, refreshToken } = await fetchLogin({
         userName: username,
-        password
+        password,
+        code: captchaEnabled.value ? formData.code : undefined,
+        uuid: captchaEnabled.value ? formData.uuid : undefined
       })
 
       // 验证token
@@ -137,6 +177,9 @@
         // ElMessage.error('登录失败，请稍后重试')
         console.error('[Login] Unexpected error:', error)
       }
+      if (captchaEnabled.value) {
+        await getCode()
+      }
     } finally {
       loading.value = false
     }
@@ -154,6 +197,10 @@
       })
     }, 1000)
   }
+
+  onMounted(() => {
+    getCode()
+  })
 </script>
 
 <style scoped>

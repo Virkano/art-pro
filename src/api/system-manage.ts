@@ -167,6 +167,68 @@ export function fetchGetUserDeptTree() {
   })
 }
 
+// ========== 个人中心 API (RuoYi) ==========
+function normalizeUserProfile(
+  response: Api.SystemManage.RuoYiUserProfileResponse | Api.SystemManage.UserProfile
+) {
+  const user = (
+    'user' in response && response.user ? response.user : response
+  ) as Api.SystemManage.UserProfile
+
+  return {
+    ...user,
+    roleGroup: ('roleGroup' in response && response.roleGroup) || user.roleGroup || '',
+    postGroup: ('postGroup' in response && response.postGroup) || user.postGroup || '',
+    dept: user.dept || {}
+  } as Api.SystemManage.UserProfile
+}
+
+export function fetchGetUserProfile() {
+  return request
+    .get<Api.SystemManage.RuoYiUserProfileResponse | Api.SystemManage.UserProfile>({
+      url: '/system/user/profile'
+    })
+    .then(normalizeUserProfile)
+}
+
+export function fetchUpdateUserProfile(data: Api.SystemManage.UserProfileForm) {
+  return request.put({
+    url: '/system/user/profile',
+    data
+  })
+}
+
+export function fetchUpdateUserPassword(params: Api.SystemManage.UpdateUserPasswordParams) {
+  const searchParams = new URLSearchParams({
+    oldPassword: params.oldPassword,
+    newPassword: params.newPassword
+  })
+
+  return request.put({
+    url: `/system/user/profile/updatePwd?${searchParams.toString()}`
+  })
+}
+
+export function fetchUploadUserAvatar(file: File) {
+  const data = new FormData()
+  data.append('avatarfile', file)
+
+  return request.post<Api.SystemManage.UploadAvatarResponse>({
+    url: '/system/user/profile/avatar',
+    data,
+    transformResponse: (responseData: unknown) => {
+      const parsed = parseJsonResponse(responseData)
+      if (parsed && typeof parsed === 'object' && 'imgUrl' in parsed) {
+        return {
+          ...parsed,
+          data: { imgUrl: String(parsed.imgUrl || '') }
+        }
+      }
+      return parsed
+    }
+  })
+}
+
 // ========== 角色管理 API (RuoYi) ==========
 function normalizeRole(row: Api.SystemManage.RoleListItem): Api.SystemManage.RoleListItem {
   return {

@@ -66,12 +66,21 @@ declare namespace Api {
     interface LoginParams {
       userName: string
       password: string
+      code?: string
+      uuid?: string
     }
 
     /** 登录响应 */
     interface LoginResponse {
       token: string
       refreshToken?: string
+    }
+
+    /** 验证码响应 */
+    interface CaptchaImageResponse {
+      captchaEnabled?: boolean
+      img?: string
+      uuid?: string
     }
 
     /** RuoYi getInfo 响应 */
@@ -97,6 +106,11 @@ declare namespace Api {
       email: string
       avatar?: string
       nickName?: string
+      phonenumber?: string
+      sex?: string
+      deptName?: string
+      roleGroup?: string
+      postGroup?: string
     }
   }
 
@@ -165,6 +179,51 @@ declare namespace Api {
       postIds?: number[]
       roleIds?: number[]
       remark?: string
+    }
+
+    /** 个人中心用户资料 */
+    interface UserProfile {
+      userId?: number | string
+      deptId?: number | string | null
+      userName: string
+      nickName: string
+      email?: string
+      phonenumber?: string
+      sex?: string
+      avatar?: string
+      dept?: {
+        deptName?: string
+      }
+      roles?: RoleListItem[]
+      posts?: PostListItem[]
+      roleGroup?: string
+      postGroup?: string
+    }
+
+    /** RuoYi 个人中心响应 */
+    interface RuoYiUserProfileResponse {
+      user?: UserProfile
+      roleGroup?: string
+      postGroup?: string
+    }
+
+    /** 个人中心资料表单 */
+    interface UserProfileForm {
+      nickName: string
+      email?: string
+      phonenumber?: string
+      sex?: string
+    }
+
+    /** 修改当前用户密码参数 */
+    interface UpdateUserPasswordParams {
+      oldPassword: string
+      newPassword: string
+    }
+
+    /** 上传头像响应 */
+    interface UploadAvatarResponse {
+      imgUrl: string
     }
 
     /** RuoYi 用户详情/新增初始化响应 */
