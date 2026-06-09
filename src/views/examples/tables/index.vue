@@ -444,6 +444,14 @@
   defineOptions({ name: 'AdvancedTableDemo' })
 
   type UserListItem = Api.SystemManage.UserListItem
+  type UserStatusFilter = Api.SystemManage.RuoYiStatus | ''
+  type SearchFormState = {
+    name: string
+    phone: string
+    status: UserStatusFilter
+    department: string
+    daterange?: string[]
+  }
 
   // 选中的行
   const selectedRows = ref<UserListItem[]>([])
@@ -501,7 +509,7 @@
   }
 
   // 表单搜索初始值
-  const searchFormState = ref({
+  const searchFormState = ref<SearchFormState>({
     name: '',
     phone: '',
     status: '1',
@@ -514,10 +522,8 @@
 
   // 用户状态配置
   const USER_STATUS_CONFIG = {
-    '1': { type: 'success' as const, text: '在线' },
-    '2': { type: 'info' as const, text: '离线' },
-    '3': { type: 'warning' as const, text: '异常' },
-    '4': { type: 'danger' as const, text: '注销' }
+    '0': { type: 'success' as const, text: '正常' },
+    '1': { type: 'info' as const, text: '停用' }
   } as const
 
   // 搜索表单配置
@@ -546,10 +552,8 @@
       type: 'select',
       options: [
         { label: '全部', value: '' },
-        { label: '在线', value: '1' },
-        { label: '离线', value: '2' },
-        { label: '异常', value: '3' },
-        { label: '注销', value: '4' }
+        { label: '正常', value: '0' },
+        { label: '停用', value: '1' }
       ]
     },
     {
@@ -605,9 +609,11 @@
   const buildSearchParams = (params: typeof searchFormState.value) => {
     const { daterange, ...filtersParams } = params
     const [startTime, endTime] = Array.isArray(daterange) ? daterange : [null, null]
+    const { status, ...restFilters } = filtersParams
 
     return {
-      ...filtersParams,
+      ...restFilters,
+      ...(status ? { status } : {}),
       startTime,
       endTime
     }
@@ -692,7 +698,7 @@
   } = useTable({
     // 核心配置
     core: {
-      apiFn: (params) => {
+      apiFn: (params: Api.SystemManage.UserSearchParams) => {
         // 在API调用前添加调试信息
         const requestKey = JSON.stringify(params)
         console.log('🚀 API 请求参数:', params)
@@ -707,7 +713,7 @@
       apiParams: {
         current: 1,
         size: 20,
-        ...searchFormState.value
+        ...buildSearchParams(searchFormState.value)
       },
       // 排除 apiParams 中的属性
       excludeParams: ['daterange'],
@@ -796,7 +802,7 @@
             Math.floor(Math.random() * 5)
           ],
           score: Math.floor(Math.random() * 5) + 1,
-          status: ['1', '2', '3', '4'][Math.floor(Math.random() * 4)]
+          status: (['0', '1'] as const)[Math.floor(Math.random() * 2)]
         }))
       }
       // 自定义响应适配器，处理后端特殊的返回格式

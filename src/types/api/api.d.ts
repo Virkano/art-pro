@@ -130,6 +130,7 @@ declare namespace Api {
       avatar?: string
       status: RuoYiStatus
       userName: string
+      userGender?: string
       nickName: string
       email?: string
       phonenumber?: string
@@ -157,11 +158,17 @@ declare namespace Api {
 
     /** 用户搜索参数 */
     interface UserSearchParams {
+      current?: number
+      size?: number
       pageNum?: number
       pageSize?: number
       userName?: string
+      userGender?: string
+      userPhone?: string
+      userEmail?: string
       phonenumber?: string
       status?: RuoYiStatus
+      department?: string
       deptId?: number
     }
 
@@ -283,6 +290,7 @@ declare namespace Api {
       pageSize?: number
       roleName?: string
       roleKey?: string
+      remark?: string
       status?: RuoYiStatus
       startTime?: string | null
       endTime?: string | null
