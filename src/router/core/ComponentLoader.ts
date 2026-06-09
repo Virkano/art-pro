@@ -74,7 +74,13 @@ export class ComponentLoader {
   }
 
   private normalizeComponentPath(componentPath: string): string {
-    return componentPath.replace(/[\u0000-\u001f\u007f]/g, '').trim().replace(/^\/+/, '')
+    return (
+      componentPath
+        // eslint-disable-next-line no-control-regex
+        .replace(/[\u0000-\u001f\u007f]/g, '')
+        .trim()
+        .replace(/^\/+/, '')
+    )
   }
 
   private buildCandidatePaths(componentPath: string): string[] {
