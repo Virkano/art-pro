@@ -152,7 +152,8 @@ export class MenuProcessor {
 
     // 后端可能在不同菜单分支复用同一个 name。Vue Router 要求 name 全局唯一，
     // 否则后面的顶级路由会被 RouteRegistry 跳过，导致页面落到 404。
-    const rawName = item.name || item.menuName || item.path || `Menu${item.menuId || ''}`
+    const rawName =
+      item.routeName || item.name || item.menuName || item.path || `Menu${item.menuId || ''}`
     const path = this.sanitizeRoutePath(item.path || '', depth, rawName)
     const uniqueName = this.ensureUniqueRouteName(rawName, usedNames, path)
 

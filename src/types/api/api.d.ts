@@ -327,6 +327,7 @@ declare namespace Api {
     /** RuoYi 后端动态路由菜单 */
     interface RuoYiMenuItem {
       name?: string
+      routeName?: string
       path?: string
       hidden?: boolean
       redirect?: string
@@ -756,6 +757,7 @@ declare namespace Api {
       parentId: number
       orderNum: number
       path: string
+      routeName?: string
       component?: string
       query?: string
       isFrame: string
@@ -795,6 +797,7 @@ declare namespace Api {
       parentId: number
       orderNum: number
       path: string
+      routeName?: string
       component?: string
       query?: string
       isFrame?: string

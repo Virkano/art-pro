@@ -82,6 +82,22 @@
             </ElFormItem>
           </ElCol>
           <ElCol v-if="form.menuType === 'C'" :span="12">
+            <ElFormItem prop="routeName">
+              <template #label>
+                <span class="inline-flex items-center gap-1">
+                  <ElTooltip
+                    content="默认不填则按路由地址生成；路由地址重复或组件缓存冲突时，可填写唯一名称。"
+                    placement="top"
+                  >
+                    <ElIcon class="cursor-help"><QuestionFilled /></ElIcon>
+                  </ElTooltip>
+                  路由名称
+                </span>
+              </template>
+              <ElInput v-model="form.routeName" placeholder="如 UserProfile" />
+            </ElFormItem>
+          </ElCol>
+          <ElCol v-if="form.menuType === 'C'" :span="12">
             <ElFormItem label="组件路径" prop="component">
               <ElInput v-model="form.component" placeholder="如 system/user/index" />
             </ElFormItem>
@@ -169,6 +185,7 @@
     fetchUpdateMenu
   } from '@/api/system-manage'
   import { ElMessage, ElMessageBox, ElTag } from 'element-plus'
+  import { QuestionFilled } from '@element-plus/icons-vue'
 
   defineOptions({ name: 'Menus' })
 
@@ -199,6 +216,7 @@
     menuName: '',
     orderNum: 0,
     path: '',
+    routeName: '',
     component: '',
     query: '',
     isFrame: '1',
@@ -255,6 +273,7 @@
       }
     },
     { prop: 'orderNum', label: '排序', width: 90 },
+    { prop: 'routeName', label: '路由名称', minWidth: 130, showOverflowTooltip: true },
     { prop: 'perms', label: '权限标识', minWidth: 150, showOverflowTooltip: true },
     { prop: 'component', label: '组件路径', minWidth: 160, showOverflowTooltip: true },
     {
@@ -333,6 +352,7 @@
     Object.assign(form, {
       ...defaultForm(),
       ...detail,
+      routeName: detail.routeName ?? '',
       isFrame: String(detail.isFrame ?? '1'),
       isCache: String(detail.isCache ?? '0'),
       visible: String(detail.visible ?? '0') as Api.SystemManage.MenuVisible,
